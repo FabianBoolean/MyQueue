@@ -2,9 +2,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Diese Klasse implementiert eine Warteschlange mithilfe einer verketteten Liste.
- * Sie bietet Methoden zum Hinzufügen, Entfernen und Abrufen von Elementen sowie zur Iteration über die Warteschlange.
- * Sie enthält auch interne Hilfsmethoden zur Verwaltung der Listenknoten.
+ * Eine verkettete Warteschlange, die das FIFO-Prinzip nutzt.
+ * Implementiert Iterable zur Nutzung eines Iterators.
+ * @author Fabian Steinhauser
+ * @version 31-03-2025
+ * @param <E> der Typ der gespeicherten Elemente
  */
 public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     private Cell front;
@@ -12,13 +14,16 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     private int count;
 
     /**
-     * Diese Klasse repräsentiert einen Knoten der verketteten Liste.
-     * Jeder Knoten speichert ein Element und einen Verweis auf das nächste Element.
+     * Ein Knoten der verketteten Liste.
      */
     private class Cell {
         E element;
         Cell next;
 
+        /**
+         * Erstellt eine neue Zelle.
+         * @param element das gespeicherte Element
+         */
         Cell(E element) {
             this.element = element;
             this.next = null;
@@ -26,8 +31,7 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     }
 
     /**
-     * Konstruktor für eine leere Warteschlange.
-     * Initialisiert die Warteschlange mit einem null-Element und setzt die Anzahl auf 0.
+     * Erstellt eine leere Warteschlange.
      */
     public MyLinkedQueue() {
         front = null;
@@ -36,6 +40,11 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     }
 
     @Override
+    /**
+     * Fügt ein Element ans Ende an.
+     * @param element das hinzuzufügende Element
+     * @return die aktualisierte Warteschlange
+     */
     public MyQueue<E> append(E element) {
         Cell newCell = new Cell(element);
         if (rear == null) {
@@ -49,6 +58,11 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     }
 
     @Override
+    /**
+     * Entfernt das erste Element.
+     * @return das entfernte Element
+     * @throws NoSuchElementException falls die Warteschlange leer ist
+     */
     public E delete() throws NoSuchElementException {
         if (isEmpty()) {
             throw new NoSuchElementException("Queue is empty");
@@ -63,16 +77,29 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     }
 
     @Override
+    /**
+     * Gibt die Anzahl der Elemente zurück.
+     * @return die Größe der Warteschlange
+     */
     public int size() {
         return count;
     }
 
     @Override
+    /**
+     * Prüft, ob die Warteschlange leer ist.
+     * @return true, wenn leer, sonst false
+     */
     public boolean isEmpty() {
         return count == 0;
     }
 
     @Override
+    /**
+     * Gibt das erste Element zurück.
+     * @return das erste Element
+     * @throws NoSuchElementException falls die Warteschlange leer ist
+     */
     public E peek() throws NoSuchElementException {
         if (isEmpty()) {
             throw new NoSuchElementException("Queue is empty");
@@ -81,6 +108,11 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     }
 
     @Override
+    /**
+     * Gibt das letzte Element zurück.
+     * @return das letzte Element
+     * @throws NoSuchElementException falls die Warteschlange leer ist
+     */
     public E peekLast() throws NoSuchElementException {
         if (isEmpty()) {
             throw new NoSuchElementException("Queue is empty");
@@ -89,6 +121,10 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     }
 
     @Override
+    /**
+     * Gibt die Warteschlange als String aus.
+     * @return die String-Darstellung der Warteschlange
+     */
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
         Cell current = front;
@@ -104,39 +140,64 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
     }
 
     @Override
+    /**
+     * Erstellt einen Iterator für die Warteschlange.
+     * @return einen Iterator
+     */
     public Iterator<E> iterator() {
         return new MyIterator();
     }
 
     /**
-     * Diese Klasse implementiert einen Iterator für die Warteschlange.
-     * Sie ermöglicht das Durchlaufen der Elemente der Warteschlange.
+     * Ein Iterator für die Warteschlange.
      */
     private class MyIterator implements Iterator<E> {
-        private Cell current = front;
-        private Cell previous = null;
-        private boolean canRemove = false;
+        private Cell previous;
+        private Cell current;
+        private boolean removable;
+
+        /**
+         * Erstellt einen neuen Iterator.
+         */
+        public MyIterator() {
+            this.current = front;
+            this.previous = null;
+            this.removable = false;
+        }
 
         @Override
+        /**
+         * Prüft, ob ein weiteres Element vorhanden ist.
+         * @return true, wenn ja, sonst false
+         */
         public boolean hasNext() {
             return current != null;
         }
 
         @Override
-        public E next() throws NoSuchElementException {
+        /**
+         * Gibt das nächste Element zurück.
+         * @return das nächste Element
+         * @throws NoSuchElementException falls kein weiteres Element vorhanden ist
+         */
+        public E next() {
             if (!hasNext()) {
                 throw new NoSuchElementException("No more elements");
             }
             E element = current.element;
             previous = current;
             current = current.next;
-            canRemove = true;
+            removable = true;
             return element;
         }
 
         @Override
-        public void remove() throws IllegalStateException {
-            if (!canRemove) {
+        /**
+         * Entfernt das aktuelle Element.
+         * @throws IllegalStateException falls kein Element entfernt werden kann
+         */
+        public void remove() {
+            if (!removable) {
                 throw new IllegalStateException("No element to remove");
             }
             if (previous == front) {
@@ -144,18 +205,9 @@ public class MyLinkedQueue<E> implements MyQueue<E>, Iterable<E> {
                 if (front == null) {
                     rear = null;
                 }
-            } else {
-                Cell temp = front;
-                while (temp.next != previous) {
-                    temp = temp.next;
-                }
-                temp.next = previous.next;
-                if (previous == rear) {
-                    rear = temp;
-                }
             }
             count--;
-            canRemove = false;
+            removable = false;
         }
     }
 }

@@ -4,6 +4,8 @@ import java.util.NoSuchElementException;
  * Diese Schnittstelle definiert die grundlegenden Operationen einer Warteschlange.
  * Sie ermöglicht das Hinzufügen und Entfernen von Elementen, das Abfragen der Größe und das Überprüfen, ob die Warteschlange leer ist.
  * Außerdem bietet sie Methoden zum Abrufen des ersten und letzten Elements, ohne sie zu entfernen.
+ * @author Fabian Steinhauser
+ * @version 11-03-2025
  */
 public interface MyQueue<E> {
     /**
